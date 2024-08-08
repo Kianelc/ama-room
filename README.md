@@ -7,6 +7,7 @@ O objetivo deste projeto é criar uma aplicação web para salas públicas de AM
 ## Tecnologias Utilizadas
 
 - **Backend:**
+
   - Linguagem: Go
   - Websocket para comunicação em tempo real
   - Gerenciamento de código concorrente e paralelo
@@ -21,16 +22,22 @@ O objetivo deste projeto é criar uma aplicação web para salas públicas de AM
 ### Checklist de Atividades
 
 - **Segunda-feira, 05/08**
-  - [ ] Aula 01: Introdução ao Go
-
+  - Aula 01: Introdução ao Go
+  - [Issue: Aula 01 - Introdução ao Go](https://github.com/Kianelc/ama-room/issues/1)
 - **Terça-feira, 06/08**
-  - [ ] Aula 02: Avançando com Go
+
+  - Aula 02: Avançando com Go
+  - [Issue: Aula 02 - Avançando com Go](https://github.com/Kianelc/ama-room/issues/2)
 
 - **Quarta-feira, 07/08**
-  - [ ] Aula 03: Introdução ao React
+
+  - Aula 03: Introdução ao React
+  - [Issue: Aula 03 - Introdução ao React](https://github.com/Kianelc/ama-room/issues/3)
 
 - **Quinta-feira, 08/08**
-  - [ ] Aula 04: Avançando com React
+
+  - Aula 04: Avançando com React
+  - [Issue: Aula 04 - Avançando com React](https://github.com/Kianelc/ama-room/issues/4)
 
 - **Quinta-feira, 08/08 - 19h00**
   - [ ] Encerramento do curso
