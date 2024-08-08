@@ -1,43 +1,34 @@
-# AMA Public Room Project
+# AMA Public Room Project - Backend
 
 ## Descrição do Projeto
 
-O objetivo deste projeto é criar uma aplicação web para salas públicas de AMA (Ask Me Anything), permitindo que os usuários façam perguntas e priorizem as mais importantes por meio de curtidas. Cada sala terá um identificador único para que possa ser compartilhada facilmente entre os participantes. A aplicação contará com uma interface para enviar perguntas e um sistema de votação para priorizar as perguntas mais relevantes para a comunidade.
+Este diretório contém a implementação do backend da aplicação web para salas públicas de AMA (Ask Me Anything). O backend é responsável por gerenciar as salas, lidar com a comunicação em tempo real entre os participantes e gerenciar as votações para priorizar as perguntas mais relevantes.
 
 ## Tecnologias Utilizadas
 
-- **Backend:**
+- **Linguagem:** Go
+- **Comunicação em Tempo Real:** WebSocket
+- **Gerenciamento de Concorrência:** Recursos nativos do Go para código concorrente e paralelo
 
-  - Linguagem: Go
-  - Websocket para comunicação em tempo real
-  - Gerenciamento de código concorrente e paralelo
+## Estrutura de Pastas
 
-- **Frontend:**
-  - Ferramenta: Vite
-  - Biblioteca: React (React Router DOM para navegação)
-  - Estilização: Tailwind CSS
+- **`/cmd`**: Contém os comandos principais para iniciar a aplicação.
+- **`/internal`**: Código interno do backend, incluindo lógica de negócios e serviços.
 
-## Cronograma do Curso
+## Como Executar
 
-### Checklist de Atividades
+1. **Instale as dependências:**
 
-- **Segunda-feira, 05/08**
-  - Aula 01: Introdução ao Go
-  - [Issue: Aula 01 - Introdução ao Go](https://github.com/Kianelc/ama-room/issues/1)
-- **Terça-feira, 06/08**
+   ```sh
+   go mod tidy
+   ```
 
-  - Aula 02: Avançando com Go
-  - [Issue: Aula 02 - Avançando com Go](https://github.com/Kianelc/ama-room/issues/2)
+2. **Execute a API:**
 
-- **Quarta-feira, 07/08**
+   ```sh
+   go run cmd/wsrs/main.go
+   ```
 
-  - Aula 03: Introdução ao React
-  - [Issue: Aula 03 - Introdução ao React](https://github.com/Kianelc/ama-room/issues/3)
-
-- **Quinta-feira, 08/08**
-
-  - Aula 04: Avançando com React
-  - [Issue: Aula 04 - Avançando com React](https://github.com/Kianelc/ama-room/issues/4)
-
-- **Quinta-feira, 08/08 - 19h00**
-  - [ ] Encerramento do curso
+3. **Configuração do ambiente:**
+   - Variáveis de ambiente necessárias estão definidas no arquivo `.env.example`.
+   - Renomeie para `.env` e ajuste conforme necessário.
