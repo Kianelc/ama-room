@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -15,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 //estamos adicionando o tipo concreto e adicionando aqui o ideal seria colocar como uma interface
@@ -77,6 +79,41 @@ func NweHandler(q *pgstore.Queries) http.Handler {
 	return a
 }
 
+const (
+	MessageKindMessageCreated          = "message_created"
+	MessageKindMessageRactionIncreased = "message_reaction_increased"
+	MessageKindMessageRactionDecreased = "message_reaction_decreased"
+	MessageKindMessageAnswered         = "message_answered"
+)
+
+type MessageMessageCreated struct {
+	ID string
+	Message string
+}
+
+type Message struct {
+	Kind string `json:"kind"`
+	Value any `json:"value"`
+	RoomID string `json:"-"`
+}
+
+func (h apiHandler) notifyClients(msg Message) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	subscribers, ok := h.subscribers[msg.RoomID]
+	if !ok || len(subscribers) == 0 {
+		return
+	}
+
+	for conn, cancel := range subscribers {
+		if err := conn.WriteJSON(msg); err != nil {
+			slog.Error("failed to send message to client", "error", err)
+			cancel()
+		}
+	}
+}
+
 func (h apiHandler) handleSubscribe(w http.ResponseWriter, r *http.Request){
 	rawRoomID := chi.URLParam(r, "room_id")
 	roomID, err := uuid.Parse(rawRoomID)
@@ -125,11 +162,94 @@ func (h apiHandler) handleSubscribe(w http.ResponseWriter, r *http.Request){
 }
 
 func (h apiHandler) handleCreateRoom(w http.ResponseWriter, r *http.Request){
+	type _body struct {
+		Theme string `json:"theme"`
+	}
+	var body _body
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
 
+	theme := pgtype.Text{
+		String: body.Theme,
+		Valid:  body.Theme != "",
+	}
+
+	roomID, err := h.q.InsertRoom(r.Context(), theme)
+	if err != nil {
+		slog.Error("failed to insert room", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	type response struct {
+		ID string `json:"id"`
+	}
+
+	data, _ := json.Marshal(response{ID: roomID.String()})
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write(data)
 }
 
 func (h apiHandler) handleGetRooms(w http.ResponseWriter, r *http.Request){}
-func (h apiHandler) handleCreateRoomMessage(w http.ResponseWriter, r *http.Request){}
+func (h apiHandler) handleCreateRoomMessage(w http.ResponseWriter, r *http.Request){
+	rawRoomID := chi.URLParam(r, "room_id")
+	roomID, err := uuid.Parse(rawRoomID)
+
+	if err != nil {
+		http.Error(w, "invalid room id", http.StatusBadRequest)
+		return
+	}
+
+	_, err = h.q.GetRoom(r.Context(), roomID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			http.Error(w, "room not found", http.StatusBadRequest)
+			return
+		}
+
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	type _body struct {
+		Message string `json:"message"`
+	}
+	var body _body
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "invalid json", http.StatusBadRequest)
+		return
+	}
+
+	messageID, err := h.q.InsertMessage(r.Context(), pgstore.InsertMessageParams{
+		RoomID: roomID,
+		Message: body.Message,
+	})
+
+	if err != nil {
+		slog.Error("failed to insert message", "error", err)
+		http.Error(w, "something went wrong", http.StatusInternalServerError)
+		return
+	}
+
+	type response struct {
+		ID string `json:"id"`
+	}
+
+	data, _ := json.Marshal(response{ID: messageID.String()})
+	w.Header().Set("Content-Type", "application/json")
+	_, _ = w.Write(data)
+
+	go h.notifyClients(Message{
+		Kind: MessageKindMessageCreated,
+		RoomID: rawRoomID,
+		Value: MessageMessageCreated{
+			ID: messageID.String(),
+			Message: body.Message,
+		},
+	})
+}
 func (h apiHandler) handleGetRoomMessages(w http.ResponseWriter, r *http.Request){}
 func (h apiHandler) handleGetRoomMessage(w http.ResponseWriter, r *http.Request){}
 func (h apiHandler) handleReactToMessage(w http.ResponseWriter, r *http.Request){}
