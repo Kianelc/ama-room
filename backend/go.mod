@@ -1,4 +1,4 @@
-module github.com/Kianelc/ama-room.git
+module github.com/Kianelc/ama-room/backend
 
 go 1.18
 

@@ -8,8 +8,9 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/Kianelc/ama-room.git/internal/api"
-	"github.com/Kianelc/ama-room.git/internal/store/pgstore"
+	"github.com/Kianelc/ama-room/backend/internal/api"
+	"github.com/Kianelc/ama-room/backend/internal/store/pgstore"
+
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )

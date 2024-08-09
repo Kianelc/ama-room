@@ -40,4 +40,4 @@ O objetivo deste projeto é criar uma aplicação web para salas públicas de AM
   - [Issue: Aula 04 - Avançando com React](https://github.com/Kianelc/ama-room/issues/4)
 
 - **Quinta-feira, 08/08 - 19h00**
-  - [ ] Encerramento do curso
+  - [x] Encerramento do curso
